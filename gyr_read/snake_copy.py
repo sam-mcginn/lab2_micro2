@@ -10,14 +10,18 @@ import time
 import random
 # TODO uncomment the following line to use pyserial package
 import serial
+import numpy
+import string
 
 # Note the serial port dev file name
 # need to change based on the particular host machine
 # TODO uncomment the following two lines to initialize serial port
 serialDevFile = '/dev/cu.usbmodem141101'
-ser=serial.Serial(serialDevFile, 9600, timeout=0)
+ser=serial.Serial(serialDevFile, 9600, timeout=1)
 
 delay = 0.1
+gyrx_read = 0
+gyry_read = 0
 
 # Score
 score = 0
@@ -93,6 +97,49 @@ def move():
     if head.direction == "right":
         x = head.xcor()
         head.setx(x + 20)
+
+def update_orient():
+    # Serial read, decode from byte array to string
+    read = (ser.readline().decode())
+    # Split string into words
+    read_arr = numpy.array(read.split())
+
+    read_mask = [False]*len(read_arr)       # Array mask to extract numbers from word array
+    for i in range(len(read_arr)):
+        if read_arr[i].isnumeric():
+            read_mask[i] = True             # positive integer
+        elif read_arr[i][0] == '-':
+            if read_arr[i][1:].isnumeric():
+                read_mask[i] = True         # negative integer
+    
+    read_xy = read_arr[read_mask].astype(int) # array of integers from serial read
+
+    if len(read_xy) < 2:
+        # less than 2 nums read (error) - avoid array OOB
+        gyrx_read = 0
+        gyry_read = 0
+    else:
+        # read array as [x, y]
+        gyrx_read = read_xy[0]
+        gyry_read = read_xy[1]
+
+    # Update direction from gyro reading
+    if abs(gyrx_read) > 1000 or abs(gyry_read) > 1000:
+        # gyro is oriented on board S/T:
+        # tilt forward = -x axis, backward = +x axis
+        # tilt left = -y axis, right = +y axis
+        if abs(gyrx_read) > abs (gyry_read):
+            # more up/down than left/right
+            if gyrx_read < 0:
+                go_up()
+            else:
+                go_down()
+        else:
+            # left/right
+            if gyry_read < 0:
+                go_left()
+            else:
+                go_right()
 
 # Keyboard bindings
 wn.listen()
@@ -184,6 +231,7 @@ while True:
         y = head.ycor()
         segments[0].goto(x,y)
 
+    update_orient()
     move()    
 
     # Check for head collision with the body segments
