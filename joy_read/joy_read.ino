@@ -1,7 +1,7 @@
 // Arduino pin numbers
-const int SW_pin = 2; // digital pin connected to switch output
-const int X_pin = 0; // analog pin connected to X output
-const int Y_pin = 1; // analog pin connected to Y output
+const int SW_pin = 32; // digital pin connected to switch output
+const int X_pin = 5; // analog pin connected to X output
+const int Y_pin = 7; // analog pin connected to Y output
 
 void setup() {
   pinMode(SW_pin, INPUT);
@@ -17,7 +17,7 @@ void loop() {
 
    // Update direction from joystick reading
   if ( analogRead(X_pin) > 1000 ||analogRead(Y_pin) > 1000) {
-    // gyro is oriented on board s/t:
+    // joystick is oriented on board s/t:
     // tilt forward = -x axis, backward = +x axis
     // tilt left = -y axis, right = +y axis
     if ( analogRead(X_pin) > analogRead(Y_pin)) {
