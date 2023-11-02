@@ -213,6 +213,11 @@ while True:
         # Increase the score
         score += 10
         
+        #buzzer beep
+        line = ser.readline();
+        print(line);
+        ser.write(b'B');
+
         if score > high_score:
             high_score = score
             
