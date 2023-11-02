@@ -15,7 +15,7 @@ void loop() {
   Serial.println(analogRead(Y_pin));
   delay(500);
 
-   // Update direction from gyro reading
+   // Update direction from joystick reading
   if ( analogRead(X_pin) > 1000 ||analogRead(Y_pin) > 1000) {
     // gyro is oriented on board s/t:
     // tilt forward = -x axis, backward = +x axis
