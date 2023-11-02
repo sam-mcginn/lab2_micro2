@@ -212,10 +212,10 @@ while True:
 
         # Increase the score
         score += 10
-
+        
         if score > high_score:
             high_score = score
-        
+            
         pen.clear()
         pen.write("Score: {}  High Score: {}  P/A: {}".format(score, high_score, ppa), align="center", font=("Courier", 24, "normal")) 
 
