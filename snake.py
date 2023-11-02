@@ -10,12 +10,14 @@ import time
 import random
 # TODO uncomment the following line to use pyserial package
 import serial
+import numpy
+import string
 
 # Note the serial port dev file name
 # need to change based on the particular host machine
 # TODO uncomment the following two lines to initialize serial port
 serialDevFile = '/dev/cu.usbmodem141101'
-ser=serial.Serial(serialDevFile, 9600, timeout=0)
+ser=serial.Serial(serialDevFile, 9600, timeout=1)
 
 delay = 0.1
 
@@ -94,6 +96,20 @@ def move():
         x = head.xcor()
         head.setx(x + 20)
 
+def update_orient():
+    # Serial read, decode from byte array to string
+    read = ser.readline().decode().strip()
+    print(read)
+    if read == '1':
+        go_up()
+    elif read == '3':
+        go_down()
+    elif read ==  '4':
+        go_left()
+    elif read == '2':
+        go_right()
+        
+    
 # Keyboard bindings
 wn.listen()
 wn.onkey(go_up, "w")
@@ -184,6 +200,7 @@ while True:
         y = head.ycor()
         segments[0].goto(x,y)
 
+    update_orient()
     move()    
 
     # Check for head collision with the body segments
