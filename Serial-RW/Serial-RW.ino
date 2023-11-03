@@ -11,13 +11,14 @@
 #include<math.h>
 
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
-int16_t GyX,GyY,GyZ;
+int16_t GyX,GyY,joyX, joyY;
 int incomingByte = 0;
 //char up[3] = {'u', 'p', '\0'};
 //char down[5] = {'d', 'o', 'w', 'n', '\0'};
 //char left[5] = {'l', 'e', 'f', 't', '\0'};
 //char right[5] = {'r', 'i', 'g', 'h', 't', '\0'};
 int currDirection = 0;
+int buzzer = 2;
 
 void read_gyro () {
   Wire.beginTransmission(MPU_addr);
@@ -36,25 +37,33 @@ void read_gyro () {
     if (abs(GyX) > abs(GyY)) {
       if (GyX < 0) {
         // up
-        currDirection = 1;
-        Serial.println(currDirection);
+        if (currDirection != 1) {
+          currDirection = 1;
+          Serial.println(currDirection);
+        }
       }
       else {
         // down
-        currDirection = 3;
-        Serial.println(currDirection);
+        if (currDirection != 3) {
+          currDirection = 3;
+          Serial.println(currDirection);
+        }
       }
     } 
     else {
       if (GyY < 0) {
         // left
-        currDirection = 4;
-        Serial.println(currDirection);
+        if (currDirection != 4) {
+          currDirection = 4;
+          Serial.println(currDirection);
+        }
       }
       else {
         // right
-        currDirection = 2;
-        Serial.println(currDirection);
+        if (currDirection != 2) {
+          currDirection = 2;
+          Serial.println(currDirection);
+        }
       }
     }
   
@@ -63,6 +72,39 @@ void read_gyro () {
 
 void read_joystick() {
   // FIX - read joystick and set currDirection accordingly
+  // Read joystick
+  joyX = analogRead(A5);
+  joyY = analogRead(A7);
+  
+  // Update direction from joystick reading
+  if (joyX > 650) {
+    // right (?)
+    if (currDirection != 2) {
+      currDirection = 2;
+      Serial.println(currDirection);
+    }
+  }
+  else if (joyX < 450) {
+    // left ?
+    if (currDirection != 4) {
+      currDirection = 4;
+      Serial.println(currDirection);
+    }
+  }
+  else if (joyY > 650) {
+    // up (?)
+    if (currDirection != 3) {
+      currDirection = 3;
+      Serial.println(currDirection);
+    }
+  }
+  else if (joyY < 450) {
+    // down (?)
+    if (currDirection != 1) {
+      currDirection = 1;
+      Serial.println(currDirection);
+    }
+  }
 }
 
 // the setup routine runs once when you press reset:
@@ -78,7 +120,10 @@ void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
 
+
   // FIX: PIN ASSIGNMENT FOR ACTIVE BUZZER
+  // FIX: PIN ASSIGNMENTS FOR JOYSTICK
+  pinMode(buzzer, OUTPUT);
 
   // DEBUG:
   pinMode(LED_BUILTIN, OUTPUT);
@@ -90,6 +135,13 @@ void loop() {
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
     // FIX - if incomingByte indicates buzzer, sound buzzer
+    if (incomingByte == 'B')
+    {
+      //tone(buzzer,300,3000);
+      digitalWrite(buzzer, HIGH);
+      delay(500);
+      digitalWrite(buzzer, LOW);
+    }
   }
   /*
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -102,5 +154,5 @@ void loop() {
 
   read_gyro();
   read_joystick();
-  Serial.println(currDirection);
+  //Serial.println(currDirection);
 }
