@@ -30,7 +30,7 @@ void read_gyro () {
   // GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 
   // Update direction from gyro reading
-  if (abs(GyX) > 1000 || abs(GyY) > 1000) {
+  if (abs(GyX) > 1500 || abs(GyY) > 1500) {
     // gyro is oriented on board s/t:
     // tilt forward = -x axis, backward = +x axis
     // tilt left = -y axis, right = +y axis
